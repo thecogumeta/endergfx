@@ -1,0 +1,9 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+find_dependency(SDL3)
+find_dependency(bgfx)
+
+include("${CMAKE_CURRENT_LIST_DIR}/endergfxTargets.cmake")
+
+check_required_components(endergfx)

@@ -1,0 +1,134 @@
+cmake_minimum_required(VERSION 3.21)
+project(endergfx VERSION 0.1.0 LANGUAGES CXX)
+
+find_program(CCACHE_PROGRAM ccache)
+if(CCACHE_PROGRAM)
+  set(CMAKE_CXX_COMPILER_LAUNCHER ${CCACHE_PROGRAM})
+  set(CMAKE_C_COMPILER_LAUNCHER ${CCACHE_PROGRAM})
+endif()
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+option(ENDERGFX_FETCH_SDL3 "Fetch SDL3 automatically if not found" OFF)
+option(ENDERGFX_FETCH_BGFX "Fetch bgfx automatically if not found" OFF)
+option(ENDERGFX_BUILD_SHARED "Build endergfx as a shared library" OFF)
+option(ENDERGFX_BUILD_EXAMPLES "Build endergfx examples" OFF)
+
+include(GNUInstallDirs)
+include(FetchContent)
+
+if(NOT ENDERGFX_FETCH_SDL3)
+  find_package(SDL3 QUIET)
+endif()
+
+if(NOT SDL3_FOUND)
+  if(NOT ENDERGFX_FETCH_SDL3)
+    message(FATAL_ERROR
+      "endergfx: SDL3 was not found on this system.\n"
+      "Install it and make it discoverable via find_package(SDL3),\n"
+      "or configure with -DENDERGFX_FETCH_SDL3=ON to let endergfx\n"
+      "download and build it automatically via FetchContent."
+    )
+  endif()
+
+  fetchcontent_declare(
+    SDL3
+    GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
+    GIT_TAG release-3.2.8
+    GIT_SHALLOW ON
+  )
+  fetchcontent_makeavailable(SDL3)
+endif()
+
+if(NOT ENDERGFX_FETCH_BGFX)
+  find_package(bgfx QUIET)
+endif()
+
+if(NOT bgfx_FOUND)
+  if(NOT ENDERGFX_FETCH_BGFX)
+    message(FATAL_ERROR
+      "endergfx: bgfx was not found on this system.\n"
+      "Install it and make it discoverable via find_package(bgfx),\n"
+      "or configure with -DENDERGFX_FETCH_BGFX=ON to let endergfx\n"
+      "download and build it automatically via FetchContent."
+    )
+  endif()
+
+  fetchcontent_declare(
+    bgfx.cmake
+    GIT_REPOSITORY https://github.com/bkaradzic/bgfx.cmake.git
+    GIT_TAG        master
+    GIT_SHALLOW ON
+  )
+  fetchcontent_makeavailable(bgfx.cmake)
+endif()
+
+file(
+  GLOB_RECURSE
+  ENDERGFX_SOURCES
+  CONFIGURE_DEPENDS
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
+)
+
+if(ENDERGFX_BUILD_SHARED)
+  add_library(endergfx SHARED ${ENDERGFX_SOURCES})
+else()
+  add_library(endergfx STATIC ${ENDERGFX_SOURCES})
+endif()
+
+add_library(endergfx::endergfx ALIAS endergfx)
+
+target_include_directories(endergfx PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
+
+target_link_libraries(endergfx PUBLIC
+  SDL3::SDL3
+  bgfx
+  bx
+  bimg
+)
+
+target_compile_features(endergfx PUBLIC cxx_std_20)
+
+if(ENDERGFX_BUILD_EXAMPLES)
+  add_subdirectory(examples)
+endif()
+
+install(TARGETS endergfx
+  EXPORT endergfxTargets
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
+install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+install(EXPORT endergfxTargets
+    FILE endergfxTargets.cmake
+    NAMESPACE endergfx::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/endergfx
+)
+
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/endergfx-config.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/endergfx-config.cmake
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/endergfx
+)
+
+write_basic_package_version_file(
+    ${CMAKE_CURRENT_BINARY_DIR}/endergfx-config-version.cmake
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY SameMajorVersion
+)
+
+install(FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/endergfx-config.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/endergfx-config-version.cmake
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/endergfx
+)

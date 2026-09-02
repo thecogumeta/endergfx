@@ -1,6 +1,4 @@
-#include <endergfx/Input.hpp>
-#include <endergfx/Renderer.hpp>
-#include <endergfx/Window.hpp>
+#include <endergfx/endergfx.hpp>
 
 int main() {
   endergfx::WindowConfig winConfig;

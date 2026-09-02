@@ -94,6 +94,46 @@ target_link_libraries(endergfx PUBLIC
 
 target_compile_features(endergfx PUBLIC cxx_std_20)
 
+include(cmake/Shaders.cmake)
+
+file(GLOB ENDERGFX_VS_SOURCES CONFIGURE_DEPENDS
+  "${CMAKE_CURRENT_SOURCE_DIR}/shaders/*_vs.sc"
+)
+file(GLOB ENDERGFX_FS_SOURCES CONFIGURE_DEPENDS
+  "${CMAKE_CURRENT_SOURCE_DIR}/shaders/*_fs.sc"
+)
+
+set(ENDERGFX_SHADER_GEN_DIR ${CMAKE_BINARY_DIR}/generated/shaders)
+
+if(ENDERGFX_VS_SOURCES)
+  bgfx_compile_shaders(
+    TYPE VERTEX
+    SHADERS ${ENDERGFX_VS_SOURCES}
+    VARYING_DEF ${CMAKE_SOURCE_DIR}/shaders/varying.def.sc
+    OUTPUT_DIR ${ENDERGFX_SHADER_GEN_DIR}
+    AS_HEADERS
+  )
+endif()
+
+if(ENDERGFX_FS_SOURCES)
+  bgfx_compile_shaders(
+    TYPE FRAGMENT
+    SHADERS ${ENDERGFX_FS_SOURCES}
+    VARYING_DEF ${CMAKE_SOURCE_DIR}/shaders/varying.def.sc
+    OUTPUT_DIR ${ENDERGFX_SHADER_GEN_DIR}
+    AS_HEADERS
+  )
+endif()
+
+target_sources(endergfx PRIVATE ${ENDERGFX_VS_SOURCES} ${ENDERGFX_FS_SOURCES})
+
+target_compile_definitions(endergfx PUBLIC
+  $<$<CONFIG:Debug>:BX_CONFIG_DEBUG=1>
+  $<$<NOT:$<CONFIG:Debug>>:BX_CONFIG_DEBUG=0>
+)
+
+target_include_directories(endergfx PRIVATE ${ENDERGFX_SHADER_GEN_DIR})
+
 if(ENDERGFX_BUILD_EXAMPLES)
   add_subdirectory(examples)
 endif()

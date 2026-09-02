@@ -1,4 +1,5 @@
 #pragma once
+#include "endergfx/Camera.hpp"
 #include "endergfx/Window.hpp"
 #include <bgfx/bgfx.h>
 
@@ -11,6 +12,8 @@ public:
 
   void beginFrame();
   void endFrame();
+
+  void setCamera(bgfx::ViewId view, const Camera &camera);
 
   bool isValid() const { return this->m_valid; }
 

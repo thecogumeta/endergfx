@@ -68,6 +68,10 @@ Renderer::~Renderer() {
   }
 }
 
+void Renderer::setCamera(bgfx::ViewId view, const Camera &camera) {
+  bgfx::setViewTransform(view, camera.viewMatrix(), camera.projMatrix());
+}
+
 void Renderer::beginFrame() { bgfx::touch(0); }
 
 void Renderer::endFrame() { bgfx::frame(); }

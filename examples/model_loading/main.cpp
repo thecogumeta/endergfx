@@ -1,10 +1,9 @@
 #include <endergfx/endergfx.hpp>
-
 #include <vector>
 
 int main() {
   endergfx::WindowConfig config;
-  config.title = "endergfx - rotating cube";
+  config.title = "endergfx - model loading";
   config.width = 1280;
   config.height = 720;
 
@@ -20,24 +19,11 @@ int main() {
                             static_cast<float>(config.height),
                         0.1f, 100.0f);
 
-  std::vector<endergfx::Vertex> vertices = {
-      {.x = -1.0f, .y = 1.0f, .z = 1.0f, .abgr = 0xff000000},
-      {.x = 1.0f, .y = 1.0f, .z = 1.0f, .abgr = 0xff0000ff},
-      {.x = -1.0f, .y = -1.0f, .z = 1.0f, .abgr = 0xff00ff00},
-      {.x = 1.0f, .y = -1.0f, .z = 1.0f, .abgr = 0xff00ffff},
-      {.x = -1.0f, .y = 1.0f, .z = -1.0f, .abgr = 0xffff0000},
-      {.x = 1.0f, .y = 1.0f, .z = -1.0f, .abgr = 0xffff00ff},
-      {.x = -1.0f, .y = -1.0f, .z = -1.0f, .abgr = 0xffffff00},
-      {.x = 1.0f, .y = -1.0f, .z = -1.0f, .abgr = 0xffffffff},
-  };
-
-  std::vector<uint16_t> indices = {
-      0, 1, 2, 1, 3, 2, 4, 6, 5, 5, 6, 7, 0, 2, 4, 4, 2, 6,
-      1, 5, 3, 5, 7, 3, 0, 4, 1, 4, 5, 1, 2, 3, 6, 6, 3, 7,
-  };
-
-  endergfx::Mesh cubeMesh(vertices, indices);
-  endergfx::Model cube(cubeMesh);
+  auto meshes = endergfx::ModelLoader::loadOBJ("assets/suzanne.obj");
+  if (meshes.empty()) {
+    return 1;
+  }
+  endergfx::Model model(meshes[0]);
 
   float angle = 0.0f;
 
@@ -54,11 +40,11 @@ int main() {
     }
 
     angle += 0.01f;
-    cube.setRotation(angle * 20.0f, angle * 40.0f, 0.0f);
+    model.setRotation(0.0f, angle * 30.0f, 0.0f);
 
     renderer.setCamera(0, camera);
     renderer.beginFrame();
-    cube.draw(0);
+    model.draw(0);
     renderer.endFrame();
   }
 

@@ -5,6 +5,8 @@
 #include <endergfx/Log.hpp>
 #include <endergfx/Mesh.hpp>
 #include <endergfx/Model.hpp>
+#include <endergfx/ModelLoader.hpp>
+#include <endergfx/PathUtils.hpp>
 #include <endergfx/Renderer.hpp>
 #include <endergfx/Vertex.hpp>
 #include <endergfx/Window.hpp>

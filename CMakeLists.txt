@@ -139,6 +139,10 @@ if(DEFINED bgfx.cmake_SOURCE_DIR AND
   )
 endif()
 
+set(ENDERGFX_SHADERC_ARGS
+  -Wno-error
+)
+
 if(ENDERGFX_VS_SOURCES)
   bgfx_compile_shaders(
     TYPE VERTEX
@@ -146,6 +150,7 @@ if(ENDERGFX_VS_SOURCES)
     VARYING_DEF "${CMAKE_CURRENT_SOURCE_DIR}/shaders/varying.def.sc"
     OUTPUT_DIR "${ENDERGFX_SHADER_GEN_DIR}"
     ${ENDERGFX_SHADER_INCLUDE_ARGS}
+    ${ENDERGFX_SHADERC_ARGS}
     AS_HEADERS
   )
 endif()
@@ -157,6 +162,7 @@ if(ENDERGFX_FS_SOURCES)
     VARYING_DEF "${CMAKE_CURRENT_SOURCE_DIR}/shaders/varying.def.sc"
     OUTPUT_DIR "${ENDERGFX_SHADER_GEN_DIR}"
     ${ENDERGFX_SHADER_INCLUDE_ARGS}
+    ${ENDERGFX_SHADERC_ARGS}
     AS_HEADERS
   )
 endif()
@@ -174,3 +180,7 @@ target_compile_definitions(endergfx PUBLIC
 target_include_directories(endergfx PRIVATE
   "${ENDERGFX_SHADER_GEN_DIR}"
 )
+
+if(ENDERGFX_BUILD_EXAMPLES)
+  add_subdirectory(examples)
+endif()

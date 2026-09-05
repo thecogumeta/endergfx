@@ -1,0 +1,80 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            artifact: endergfx-windows
+          - os: ubuntu-latest
+            artifact: endergfx-linux
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            wayland-protocols libwayland-dev libxkbcommon-dev \
+            libgl1-mesa-dev libx11-dev libxext-dev
+
+      - name: Configure
+        run: >
+          cmake -B build -S .
+          -DENDERGFX_FETCH_SDL3=ON
+          -DENDERGFX_FETCH_BGFX=ON
+          -DENDERGFX_FETCH_TINYOBJLOADER=ON
+          -DENDERGFX_BUILD_EXAMPLES=ON
+          -DENDERGFX_INSTALL=OFF
+          -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --config Release --parallel
+
+      - name: Package
+        shell: bash
+        run: |
+          mkdir -p package
+          if [ -d build/bin ]; then cp -r build/bin/* package/; fi
+          if [ -d build/Release ]; then cp -r build/Release/* package/; fi
+          cd package && zip -r ../${{ matrix.artifact }}.zip .
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.artifact }}.zip
+          if-no-files-found: warn
+
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/**/*.zip
+          generate_release_notes: true

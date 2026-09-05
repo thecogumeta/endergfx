@@ -1,4 +1,5 @@
 #include "endergfx/Renderer.hpp"
+#include "LightUniforms.hpp"
 #include "endergfx/Log.hpp"
 
 #include <SDL3/SDL.h>
@@ -70,6 +71,10 @@ Renderer::~Renderer() {
 
 void Renderer::setCamera(bgfx::ViewId view, const Camera &camera) {
   bgfx::setViewTransform(view, camera.viewMatrix(), camera.projMatrix());
+}
+
+void Renderer::setLight(bgfx::ViewId view, const Light &light) {
+  LightUniforms::setActive(view, light);
 }
 
 void Renderer::beginFrame() { bgfx::touch(0); }

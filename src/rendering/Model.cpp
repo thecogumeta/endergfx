@@ -1,4 +1,5 @@
 #include "endergfx/Model.hpp"
+#include "LightUniforms.hpp"
 #include "ShaderUtils.hpp"
 #include "endergfx/Log.hpp"
 
@@ -50,6 +51,7 @@ void Model::draw(bgfx::ViewId view) const {
   bgfx::setTransform(mtx);
   this->m_mesh.bind();
   bgfx::setState(BGFX_STATE_DEFAULT);
+  LightUniforms::applyActive(view);
   bgfx::submit(view, this->m_program);
 }
 

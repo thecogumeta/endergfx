@@ -51,11 +51,28 @@ jobs:
       - name: Package
         shell: bash
         run: |
-          mkdir -p package
-          if [ -d build/bin ]; then cp -r build/bin/* package/; fi
-          if [ -d build/Release ]; then cp -r build/Release/* package/; fi
-          cd package && zip -r ../${{ matrix.artifact }}.zip .
+          mkdir -p package/{bin,lib}
 
+          if [ -d build/bin ]; then
+            cp -r build/bin/* package/bin/ 2>/dev/null || true
+          fi
+          if [ -d build/Release ]; then
+            cp -r build/Release/* package/bin/ 2>/dev/null || true
+          fi
+          if [ -d build/bin/Release ]; then
+            cp -r build/bin/Release/* package/bin/ 2>/dev/null || true
+          fi
+          if [ -d build/lib ]; then
+            cp -r build/lib/* package/lib/ 2>/dev/null || true
+          fi
+          if [ -d build/Release ]; then
+            find build/Release -maxdepth 1 \( -name "*.lib" -o -name "*.a" -o -name "*.dll" -o -name "*.so" \) -exec cp {} package/lib/ \; 2>/dev/null || true
+          fi
+          if [ -d build/lib/Release ]; then
+            cp -r build/lib/Release/* package/lib/ 2>/dev/null || true
+          fi
+
+          cd package && zip -r ../${{ matrix.artifact }}.zip .
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:

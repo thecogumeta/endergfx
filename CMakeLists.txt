@@ -15,6 +15,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
+option(ENDERGFX_INSTALL "Install endergfx" ON)
 option(ENDERGFX_FETCH_SDL3 "Fetch SDL3 automatically" OFF)
 option(ENDERGFX_FETCH_BGFX "Fetch bgfx automatically" OFF)
 option(ENDERGFX_FETCH_TINYOBJLOADER "Fetch tinyobjloader automatically" ON)
@@ -156,37 +157,39 @@ if(ENDERGFX_BUILD_EXAMPLES)
   add_subdirectory(examples)
 endif()
 
-install(TARGETS endergfx
-  EXPORT endergfxTargets
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-)
+if(ENDERGFX_INSTALL)
+  install(TARGETS endergfx
+    EXPORT endergfxTargets
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  )
 
-install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+  install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
-install(EXPORT endergfxTargets
+  install(EXPORT endergfxTargets
     FILE endergfxTargets.cmake
     NAMESPACE endergfx::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/endergfx
-)
+  )
 
-include(CMakePackageConfigHelpers)
+  include(CMakePackageConfigHelpers)
 
-configure_package_config_file(
+  configure_package_config_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/cmake/endergfx-config.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/endergfx-config.cmake
     INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/endergfx
-)
+  )
 
-write_basic_package_version_file(
+  write_basic_package_version_file(
     ${CMAKE_CURRENT_BINARY_DIR}/endergfx-config-version.cmake
     VERSION ${PROJECT_VERSION}
     COMPATIBILITY SameMajorVersion
-)
+  )
 
-install(FILES
+  install(FILES
     ${CMAKE_CURRENT_BINARY_DIR}/endergfx-config.cmake
     ${CMAKE_CURRENT_BINARY_DIR}/endergfx-config-version.cmake
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/endergfx
-)
+  )
+endif()

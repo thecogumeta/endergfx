@@ -65,7 +65,7 @@ if(NOT bgfx_FOUND)
   fetchcontent_declare(
     bgfx.cmake
     GIT_REPOSITORY https://github.com/bkaradzic/bgfx.cmake.git
-    GIT_TAG        master
+    GIT_TAG v1.157.9447-569
     GIT_SHALLOW ON
   )
   fetchcontent_makeavailable(bgfx.cmake)

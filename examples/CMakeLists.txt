@@ -1,15 +1,16 @@
-add_executable(basic_window basic_window/main.cpp)
-target_link_libraries(basic_window PRIVATE endergfx::endergfx)
+function(endergfx_add_example name)
+  add_executable(${name} ${name}/main.cpp)
+  target_link_libraries(${name} PRIVATE endergfx::endergfx)
 
-add_executable(rotating_cube rotating_cube/main.cpp)
-target_link_libraries(rotating_cube PRIVATE endergfx::endergfx)
+  add_custom_command(TARGET ${name} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_SOURCE_DIR}/assets
+            $<TARGET_FILE_DIR:${name}>/assets
+    COMMENT "Copying assets for ${name}"
+  )
+endfunction()
 
-add_executable(model_loading model_loading/main.cpp)
-target_link_libraries(model_loading PRIVATE endergfx::endergfx)
-
-add_custom_command(TARGET model_loading POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy_directory
-          ${CMAKE_SOURCE_DIR}/assets
-          $<TARGET_FILE_DIR:model_loading>/assets
-  COMMENT "Copying assets for model_loading"
-)
+endergfx_add_example(basic_window)
+endergfx_add_example(rotating_cube)
+endergfx_add_example(model_loading)
+endergfx_add_example(textured_cube)

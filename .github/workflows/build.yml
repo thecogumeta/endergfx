@@ -89,8 +89,17 @@ jobs:
         with:
           path: artifacts
 
+      - name: Prepare release files
+        run: |
+          cd artifacts
+          for dir in */; do
+            name=$(basename "$dir")
+            zip -r "${name}.zip" "$name"
+          done
+          ls -la
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          files: artifacts/**/*.zip
+          files: artifacts/*.zip
           generate_release_notes: true

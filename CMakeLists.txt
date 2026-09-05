@@ -15,8 +15,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
-option(ENDERGFX_FETCH_SDL3 "Fetch SDL3 automatically if not found" OFF)
-option(ENDERGFX_FETCH_BGFX "Fetch bgfx automatically if not found" OFF)
+option(ENDERGFX_FETCH_SDL3 "Fetch SDL3 automatically" OFF)
+option(ENDERGFX_FETCH_BGFX "Fetch bgfx automatically" OFF)
+option(ENDERGFX_FETCH_TINYOBJLOADER "Fetch tinyobjloader automatically" ON)
 option(ENDERGFX_BUILD_SHARED "Build endergfx as a shared library" OFF)
 option(ENDERGFX_BUILD_EXAMPLES "Build endergfx examples" OFF)
 
@@ -69,6 +70,16 @@ if(NOT bgfx_FOUND)
   fetchcontent_makeavailable(bgfx.cmake)
 endif()
 
+if(ENDERGFX_FETCH_TINYOBJLOADER)
+  fetchcontent_declare(
+    tinyobjloader
+    GIT_REPOSITORY https://github.com/tinyobjloader/tinyobjloader.git
+    GIT_TAG release
+    GIT_SHALLOW ON
+  )
+  fetchcontent_makeavailable(tinyobjloader)
+endif()
+
 file(
   GLOB_RECURSE
   ENDERGFX_SOURCES
@@ -94,6 +105,7 @@ target_link_libraries(endergfx PUBLIC
   bgfx
   bx
   bimg
+  tinyobjloader
 )
 
 target_compile_features(endergfx PUBLIC cxx_std_20)

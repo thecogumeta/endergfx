@@ -118,19 +118,34 @@ target_include_directories(endergfx PRIVATE
 file(GLOB ENDERGFX_VS_SOURCES CONFIGURE_DEPENDS
   "${CMAKE_CURRENT_SOURCE_DIR}/shaders/*_vs.sc"
 )
+
 file(GLOB ENDERGFX_FS_SOURCES CONFIGURE_DEPENDS
   "${CMAKE_CURRENT_SOURCE_DIR}/shaders/*_fs.sc"
 )
 
-set(ENDERGFX_SHADER_GEN_DIR ${CMAKE_BINARY_DIR}/generated/shaders)
+set(ENDERGFX_SHADER_GEN_DIR
+  "${CMAKE_BINARY_DIR}/generated/shaders"
+)
+
+set(ENDERGFX_SHADER_INCLUDE_ARGS)
+
+fetchcontent_getproperties(bgfx.cmake)
+
+if(DEFINED bgfx.cmake_SOURCE_DIR AND
+  NOT "${bgfx.cmake_SOURCE_DIR}" STREQUAL "" AND
+  EXISTS "${bgfx.cmake_SOURCE_DIR}/bgfx/src")
+  list(APPEND ENDERGFX_SHADER_INCLUDE_ARGS
+    INCLUDE_DIRS "${bgfx.cmake_SOURCE_DIR}/bgfx/src"
+  )
+endif()
 
 if(ENDERGFX_VS_SOURCES)
   bgfx_compile_shaders(
     TYPE VERTEX
     SHADERS ${ENDERGFX_VS_SOURCES}
-    VARYING_DEF ${CMAKE_SOURCE_DIR}/shaders/varying.def.sc
-    OUTPUT_DIR ${ENDERGFX_SHADER_GEN_DIR}
-    INCLUDE_DIRS ${bgfx_SOURCE_DIR}/src
+    VARYING_DEF "${CMAKE_CURRENT_SOURCE_DIR}/shaders/varying.def.sc"
+    OUTPUT_DIR "${ENDERGFX_SHADER_GEN_DIR}"
+    ${ENDERGFX_SHADER_INCLUDE_ARGS}
     AS_HEADERS
   )
 endif()
@@ -139,59 +154,23 @@ if(ENDERGFX_FS_SOURCES)
   bgfx_compile_shaders(
     TYPE FRAGMENT
     SHADERS ${ENDERGFX_FS_SOURCES}
-    VARYING_DEF ${CMAKE_SOURCE_DIR}/shaders/varying.def.sc
-    OUTPUT_DIR ${ENDERGFX_SHADER_GEN_DIR}
-    INCLUDE_DIRS ${bgfx_SOURCE_DIR}/src
+    VARYING_DEF "${CMAKE_CURRENT_SOURCE_DIR}/shaders/varying.def.sc"
+    OUTPUT_DIR "${ENDERGFX_SHADER_GEN_DIR}"
+    ${ENDERGFX_SHADER_INCLUDE_ARGS}
     AS_HEADERS
   )
 endif()
 
-target_sources(endergfx PRIVATE ${ENDERGFX_VS_SOURCES} ${ENDERGFX_FS_SOURCES})
+target_sources(endergfx PRIVATE
+  ${ENDERGFX_VS_SOURCES}
+  ${ENDERGFX_FS_SOURCES}
+)
 
 target_compile_definitions(endergfx PUBLIC
   $<$<CONFIG:Debug>:BX_CONFIG_DEBUG=1>
   $<$<NOT:$<CONFIG:Debug>>:BX_CONFIG_DEBUG=0>
 )
 
-target_include_directories(endergfx PRIVATE ${ENDERGFX_SHADER_GEN_DIR})
-
-if(ENDERGFX_BUILD_EXAMPLES)
-  add_subdirectory(examples)
-endif()
-
-if(ENDERGFX_INSTALL)
-  install(TARGETS endergfx
-    EXPORT endergfxTargets
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-  )
-
-  install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-
-  install(EXPORT endergfxTargets
-    FILE endergfxTargets.cmake
-    NAMESPACE endergfx::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/endergfx
-  )
-
-  include(CMakePackageConfigHelpers)
-
-  configure_package_config_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/endergfx-config.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/endergfx-config.cmake
-    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/endergfx
-  )
-
-  write_basic_package_version_file(
-    ${CMAKE_CURRENT_BINARY_DIR}/endergfx-config-version.cmake
-    VERSION ${PROJECT_VERSION}
-    COMPATIBILITY SameMajorVersion
-  )
-
-  install(FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/endergfx-config.cmake
-    ${CMAKE_CURRENT_BINARY_DIR}/endergfx-config-version.cmake
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/endergfx
-  )
-endif()
+target_include_directories(endergfx PRIVATE
+  "${ENDERGFX_SHADER_GEN_DIR}"
+)

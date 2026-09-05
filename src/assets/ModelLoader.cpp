@@ -1,6 +1,7 @@
 #include "endergfx/ModelLoader.hpp"
 #include "endergfx/Log.hpp"
 #define TINYOBJLOADER_USE_MAPBOX_EARCUT
+#include <array>
 #include <tiny_obj_loader.h>
 
 namespace endergfx {

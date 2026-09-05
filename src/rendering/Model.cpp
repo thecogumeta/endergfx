@@ -2,22 +2,47 @@
 #include "LightUniforms.hpp"
 #include "ShaderUtils.hpp"
 #include "endergfx/Log.hpp"
-
 #include <bx/math.h>
 
 namespace endergfx {
 
+namespace {
+
+const Material &defaultMaterial() {
+  static Material material;
+  return material;
+}
+
+bgfx::UniformHandle textureSampler() {
+  static bgfx::UniformHandle handle =
+      bgfx::createUniform("s_texColor", bgfx::UniformType::Sampler);
+  return handle;
+}
+
+} // namespace
+
 Model::Model(const Mesh &mesh)
-    : m_mesh(mesh), m_program(ShaderUtils::createDefaultProgram()),
-      m_ownsProgram(true) {
+    : m_mesh(mesh), m_material(&defaultMaterial()),
+      m_program(ShaderUtils::createDefaultProgram()), m_ownsProgram(true) {
   if (!bgfx::isValid(this->m_program)) {
     log(LogLevel::Error,
         "Model created with an invalid DEFAULT shader program");
   }
 }
 
-Model::Model(const Mesh &mesh, bgfx::ProgramHandle program)
-    : m_mesh(mesh), m_program(program), m_ownsProgram(false) {
+Model::Model(const Mesh &mesh, const Material &material)
+    : m_mesh(mesh), m_material(&material),
+      m_program(ShaderUtils::createDefaultProgram()), m_ownsProgram(true) {
+  if (!bgfx::isValid(this->m_program)) {
+    log(LogLevel::Error,
+        "Model created with an invalid DEFAULT shader program");
+  }
+}
+
+Model::Model(const Mesh &mesh, const Material &material,
+             bgfx::ProgramHandle program)
+    : m_mesh(mesh), m_material(&material), m_program(program),
+      m_ownsProgram(false) {
   if (!bgfx::isValid(this->m_program)) {
     log(LogLevel::Error, "Model created with an invalid shader program");
   }
@@ -50,6 +75,7 @@ void Model::draw(bgfx::ViewId view) const {
 
   bgfx::setTransform(mtx);
   this->m_mesh.bind();
+  bgfx::setTexture(0, textureSampler(), this->m_material->texture().handle());
   bgfx::setState(BGFX_STATE_DEFAULT);
   LightUniforms::applyActive(view);
   bgfx::submit(view, this->m_program);

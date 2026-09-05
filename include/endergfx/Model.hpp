@@ -1,4 +1,5 @@
 #pragma once
+#include "endergfx/Material.hpp"
 #include "endergfx/Mesh.hpp"
 #include <bgfx/bgfx.h>
 
@@ -7,7 +8,9 @@ namespace endergfx {
 class Model {
 public:
   explicit Model(const Mesh &mesh);
-  Model(const Mesh &mesh, bgfx::ProgramHandle program);
+  Model(const Mesh &mesh, const Material &material);
+  Model(const Mesh &mesh, const Material &material,
+        bgfx::ProgramHandle program);
 
   ~Model();
 
@@ -22,6 +25,7 @@ public:
 
 private:
   const Mesh &m_mesh;
+  const Material *m_material;
   bgfx::ProgramHandle m_program;
   bool m_ownsProgram;
 

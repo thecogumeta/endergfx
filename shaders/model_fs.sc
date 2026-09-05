@@ -1,7 +1,8 @@
-$input v_normal, v_color0
+$input v_normal, v_texcoord0, v_color0
 
 #include <bgfx_shader.sh>
 
+SAMPLER2D(s_texColor, 0);
 uniform vec4 u_lightDir;
 uniform vec4 u_lightColor;
 
@@ -13,6 +14,8 @@ void main() {
   float ambient = u_lightColor.a;
   float intensity = ambient + diffuse * (1.0 - ambient);
 
-  vec3 litColor = v_color0.rgb * u_lightColor.rgb * intensity;
-  gl_FragColor = vec4(litColor, v_color0.a);
+  vec4 texColor = texture2D(s_texColor, v_texcoord0);
+  vec3 litColor = texColor.rgb * v_color0.rgb * u_lightColor.rgb * intensity;
+
+  gl_FragColor = vec4(litColor, texColor.a * v_color0.a);
 }

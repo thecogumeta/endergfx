@@ -110,6 +110,10 @@ target_link_libraries(endergfx PUBLIC
 
 target_compile_features(endergfx PUBLIC cxx_std_20)
 
+target_include_directories(endergfx PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/third_party
+)
+
 file(GLOB ENDERGFX_VS_SOURCES CONFIGURE_DEPENDS
   "${CMAKE_CURRENT_SOURCE_DIR}/shaders/*_vs.sc"
 )

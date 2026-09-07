@@ -4,6 +4,7 @@
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_properties.h>
+#include <bx/bx.h>
 #include <cstdint>
 
 namespace endergfx {

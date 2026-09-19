@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SDL3/SDL.h>
+#include <functional>
 #include <string>
 
 namespace endergfx {
@@ -15,12 +16,15 @@ struct WindowConfig {
   SDL_WindowFlags extraFlags = 0;
 };
 
+using ResizeCallback = std::function<void(int width, int height)>;
+
 class Window {
 public:
   explicit Window(const WindowConfig &config = {});
   ~Window();
 
   void setRelativeMouseMode(bool enabled);
+  void setResizeCallback(ResizeCallback callback);
 
   void handleEvent(SDL_Event &event);
   bool isRunning() const { return this->m_running; }
@@ -30,6 +34,7 @@ public:
 private:
   SDL_Window *m_window = nullptr;
   bool m_running;
+  ResizeCallback m_resizeCallback;
 };
 
 } // namespace endergfx

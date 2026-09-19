@@ -49,6 +49,10 @@ void Window::setRelativeMouseMode(bool enabled) {
   SDL_SetWindowRelativeMouseMode(this->m_window, enabled);
 }
 
+void Window::setResizeCallback(ResizeCallback callback) {
+  this->m_resizeCallback = std::move(callback);
+}
+
 void Window::handleEvent(SDL_Event &event) {
   switch (event.type) {
   case SDL_EVENT_QUIT:
@@ -60,6 +64,18 @@ void Window::handleEvent(SDL_Event &event) {
     if (SDL_GetWindowID(this->m_window) == event.window.windowID) {
       log(LogLevel::Debug, "Window close requested");
       this->m_running = false;
+    }
+    break;
+
+  case SDL_EVENT_WINDOW_RESIZED:
+    if (SDL_GetWindowID(this->m_window) == event.window.windowID) {
+      log(LogLevel::Debug, "Window resized to " +
+                               std::to_string(event.window.data1) + "x" +
+                               std::to_string(event.window.data2));
+
+      if (this->m_resizeCallback) {
+        this->m_resizeCallback(event.window.data1, event.window.data2);
+      }
     }
     break;
 

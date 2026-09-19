@@ -57,12 +57,10 @@ Renderer::Renderer(Window &window, unsigned int width, unsigned int height)
   log(LogLevel::Debug, "Initializing bgfx with resolution " +
                            std::to_string(this->m_width) + "x" +
                            std::to_string(this->m_height));
-
   if (!bgfx::init(init)) {
     log(LogLevel::Error, "Failed to initialize bgfx");
     return;
   }
-
   log(LogLevel::Debug, std::string("bgfx initialized with renderer: ") +
                            bgfx::getRendererName(bgfx::getRendererType()));
 
@@ -72,6 +70,9 @@ Renderer::Renderer(Window &window, unsigned int width, unsigned int height)
                     static_cast<uint16_t>(this->m_height));
 
   this->m_valid = true;
+  window.setResizeCallback([this](int w, int h) {
+    this->resize(static_cast<unsigned int>(w), static_cast<unsigned int>(h));
+  });
 }
 
 Renderer::~Renderer() {
@@ -79,6 +80,23 @@ Renderer::~Renderer() {
     log(LogLevel::Debug, "Shutting down bgfx");
     bgfx::shutdown();
   }
+}
+
+void Renderer::resize(unsigned int width, unsigned int height) {
+  if (!this->m_valid) {
+    return;
+  }
+
+  this->m_width = width;
+  this->m_height = height;
+
+  bgfx::reset(static_cast<uint32_t>(width), static_cast<uint32_t>(height),
+              BGFX_RESET_VSYNC);
+  bgfx::setViewRect(0, 0, 0, static_cast<uint16_t>(width),
+                    static_cast<uint16_t>(height));
+
+  log(LogLevel::Debug, "Renderer resized to " + std::to_string(width) + "x" +
+                           std::to_string(height));
 }
 
 void Renderer::setCamera(bgfx::ViewId view, const Camera &camera) {

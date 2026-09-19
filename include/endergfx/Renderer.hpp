@@ -14,6 +14,8 @@ public:
   void beginFrame();
   void endFrame();
 
+  void resize(unsigned int width, unsigned int height);
+
   void setCamera(bgfx::ViewId view, const Camera &camera);
   void setLight(bgfx::ViewId view, const Light &light);
 

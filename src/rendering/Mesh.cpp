@@ -15,7 +15,12 @@ Mesh::Mesh(const std::vector<Vertex> &vertices,
 
   if (!bgfx::isValid(this->m_vbh) || !bgfx::isValid(this->m_ibh)) {
     log(LogLevel::Error, "Failed to create mesh buffers");
+    return;
   }
+
+  log(LogLevel::Debug, "Mesh created: " + std::to_string(vertices.size()) +
+                           " vertices, " + std::to_string(indices.size()) +
+                           " indices");
 }
 
 Mesh::~Mesh() {

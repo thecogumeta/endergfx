@@ -26,7 +26,9 @@ Model::Model(std::shared_ptr<Mesh> mesh)
   if (!bgfx::isValid(this->m_program)) {
     log(LogLevel::Error,
         "Model created with an invalid DEFAULT shader program");
+    return;
   }
+  log(LogLevel::Debug, "Model created with default mesh, material and shader");
 }
 
 Model::Model(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material)
@@ -35,7 +37,9 @@ Model::Model(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material)
   if (!bgfx::isValid(this->m_program)) {
     log(LogLevel::Error,
         "Model created with an invalid DEFAULT shader program");
+    return;
   }
+  log(LogLevel::Debug, "Model created with custom material, default shader");
 }
 
 Model::Model(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material,
@@ -44,7 +48,9 @@ Model::Model(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material,
       m_ownsProgram(false) {
   if (!bgfx::isValid(this->m_program)) {
     log(LogLevel::Error, "Model created with an invalid shader program");
+    return;
   }
+  log(LogLevel::Debug, "Model created with custom material and shader");
 }
 
 Model::~Model() {

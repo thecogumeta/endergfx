@@ -23,6 +23,12 @@ Window::Window(const WindowConfig &config) {
     return;
   }
 
+  log(LogLevel::Debug, "Window created: \"" + config.title + "\" " +
+                           std::to_string(config.width) + "x" +
+                           std::to_string(config.height) +
+                           (config.fullscreen ? " (fullscreen)" : "") +
+                           (config.resizable ? " (resizable)" : ""));
+
   this->m_running = true;
 
   if (config.relativeMouseMode) {
@@ -32,22 +38,27 @@ Window::Window(const WindowConfig &config) {
 
 Window::~Window() {
   if (this->m_window) {
+    log(LogLevel::Debug, "Destroying window");
     SDL_DestroyWindow(this->m_window);
   }
 }
 
 void Window::setRelativeMouseMode(bool enabled) {
+  log(LogLevel::Debug,
+      std::string("Relative mouse mode: ") + (enabled ? "on" : "off"));
   SDL_SetWindowRelativeMouseMode(this->m_window, enabled);
 }
 
 void Window::handleEvent(SDL_Event &event) {
   switch (event.type) {
   case SDL_EVENT_QUIT:
+    log(LogLevel::Debug, "Received SDL_EVENT_QUIT");
     this->m_running = false;
     break;
 
   case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
     if (SDL_GetWindowID(this->m_window) == event.window.windowID) {
+      log(LogLevel::Debug, "Window close requested");
       this->m_running = false;
     }
     break;

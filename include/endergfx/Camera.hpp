@@ -1,5 +1,6 @@
 #pragma once
 
+#include <bx/math.h>
 namespace endergfx {
 
 class Camera {
@@ -19,8 +20,8 @@ public:
 private:
   void updateView();
 
-  float m_position[3] = {0.0f, 0.0f, -5.0f};
-  float m_target[3] = {0.0f, 0.0f, 0.0f};
+  bx::Vec3 m_position{0.0f, 0.0f, -5.0f};
+  bx::Vec3 m_target{0.0f, 0.0f, 0.0f};
 
   float m_view[16];
   float m_proj[16];

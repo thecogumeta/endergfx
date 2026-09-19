@@ -1,4 +1,5 @@
 #include "LightUniforms.hpp"
+#include "endergfx/Log.hpp"
 #include <unordered_map>
 
 namespace endergfx::LightUniforms {
@@ -17,6 +18,8 @@ void applyActive(bgfx::ViewId view) {
   if (!bgfx::isValid(s_lightDir)) {
     s_lightDir = bgfx::createUniform("u_lightDir", bgfx::UniformType::Vec4);
     s_lightColor = bgfx::createUniform("u_lightColor", bgfx::UniformType::Vec4);
+    log(LogLevel::Debug,
+        "LightUniforms: created u_lightDir/u_lightColor uniforms");
   }
 
   auto it = s_lights.find(view);

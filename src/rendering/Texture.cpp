@@ -18,6 +18,11 @@ Texture::Texture(const std::string &path) {
     return;
   }
 
+  log(LogLevel::Debug, "Texture: loaded \"" + path + "\" " +
+                           std::to_string(width) + "x" +
+                           std::to_string(height) + " (" +
+                           std::to_string(channels) + " channels in source)");
+
   const bgfx::Memory *mem =
       bgfx::copy(data, static_cast<uint32_t>(width * height * 4));
   stbi_image_free(data);
@@ -37,6 +42,10 @@ Texture Texture::createSolidColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
 
   bgfx::TextureHandle handle = bgfx::createTexture2D(
       1, 1, false, 1, bgfx::TextureFormat::RGBA8, BGFX_TEXTURE_NONE, mem);
+
+  log(LogLevel::Debug, "Texture: created solid color (" + std::to_string(r) +
+                           "," + std::to_string(g) + "," + std::to_string(b) +
+                           "," + std::to_string(a) + ")");
 
   return Texture(handle);
 }

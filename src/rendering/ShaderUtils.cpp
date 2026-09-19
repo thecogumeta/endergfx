@@ -33,34 +33,46 @@ createShaderForCurrentRenderer(const uint8_t *glsl, uint32_t glslSize,
 ) {
   const uint8_t *data = nullptr;
   uint32_t size = 0;
+  const char *variant = "unknown";
+
   switch (bgfx::getRendererType()) {
   case bgfx::RendererType::OpenGL:
     data = glsl;
     size = glslSize;
+    variant = "glsl";
     break;
   case bgfx::RendererType::OpenGLES:
     data = essl;
     size = esslSize;
+    variant = "essl";
     break;
   case bgfx::RendererType::Vulkan:
     data = spv;
     size = spvSize;
+    variant = "spirv";
     break;
 #if BX_PLATFORM_WINDOWS
   case bgfx::RendererType::Direct3D11:
   case bgfx::RendererType::Direct3D12:
     data = dxbc;
     size = dxbcSize;
+    variant = "dxbc";
     break;
 #elif BX_PLATFORM_OSX
   case bgfx::RendererType::Metal:
     data = mtl;
     size = mtlSize;
+    variant = "metal";
     break;
 #endif
   default:
+    log(LogLevel::Error, "ShaderUtils: no shader variant for current renderer");
     return BGFX_INVALID_HANDLE;
   }
+
+  log(LogLevel::Debug, std::string("ShaderUtils: compiling shader variant \"") +
+                           variant + "\" (" + std::to_string(size) + " bytes)");
+
   return bgfx::createShader(bgfx::copy(data, size));
 }
 
@@ -99,6 +111,9 @@ bgfx::ProgramHandle createDefaultProgram() {
       bgfx::destroy(fsh);
     return BGFX_INVALID_HANDLE;
   }
+
+  log(LogLevel::Debug, "ShaderUtils: default shader program created");
+
   return bgfx::createProgram(vsh, fsh, true);
 }
 

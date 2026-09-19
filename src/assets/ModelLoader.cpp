@@ -74,9 +74,6 @@ std::vector<Mesh> ModelLoader::loadOBJ(const std::string &path) {
     }
 
     if (!vertices.empty() && !indices.empty()) {
-      log(LogLevel::Debug, "Mesh: " + std::to_string(vertices.size()) +
-                               " vertices, " + std::to_string(indices.size()) +
-                               " indices");
       meshes.emplace_back(vertices, indices);
     }
   }

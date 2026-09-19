@@ -41,6 +41,8 @@ Renderer::Renderer(Window &window, unsigned int width, unsigned int height)
                              (driver ? driver : "unknown"));
     return;
   }
+
+  log(LogLevel::Debug, std::string("Detected video driver: ") + driver);
 #endif
 
   bgfx::setPlatformData(pd);
@@ -52,10 +54,17 @@ Renderer::Renderer(Window &window, unsigned int width, unsigned int height)
   init.resolution.reset = BGFX_RESET_VSYNC;
   init.platformData = pd;
 
+  log(LogLevel::Debug, "Initializing bgfx with resolution " +
+                           std::to_string(this->m_width) + "x" +
+                           std::to_string(this->m_height));
+
   if (!bgfx::init(init)) {
     log(LogLevel::Error, "Failed to initialize bgfx");
     return;
   }
+
+  log(LogLevel::Debug, std::string("bgfx initialized with renderer: ") +
+                           bgfx::getRendererName(bgfx::getRendererType()));
 
   bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x303030ff, 1.0f,
                      0);
@@ -67,6 +76,7 @@ Renderer::Renderer(Window &window, unsigned int width, unsigned int height)
 
 Renderer::~Renderer() {
   if (this->m_valid) {
+    log(LogLevel::Debug, "Shutting down bgfx");
     bgfx::shutdown();
   }
 }

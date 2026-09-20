@@ -5,6 +5,7 @@ $input v_normal, v_texcoord0, v_color0
 SAMPLER2D(s_texColor, 0);
 uniform vec4 u_lightDir;
 uniform vec4 u_lightColor;
+uniform vec4 u_opacity;
 
 void main() {
   vec3 normal = normalize(v_normal);
@@ -17,5 +18,5 @@ void main() {
   vec4 texColor = texture2D(s_texColor, v_texcoord0);
   vec3 litColor = texColor.rgb * v_color0.rgb * u_lightColor.rgb * intensity;
 
-  gl_FragColor = vec4(litColor, texColor.a * v_color0.a);
+  gl_FragColor = vec4(litColor, texColor.a * v_color0.a * u_opacity.x);
 }

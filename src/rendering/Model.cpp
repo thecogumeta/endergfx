@@ -18,6 +18,12 @@ bgfx::UniformHandle textureSampler() {
   return handle;
 }
 
+bgfx::UniformHandle opacityUniform() {
+  static bgfx::UniformHandle handle =
+      bgfx::createUniform("u_opacity", bgfx::UniformType::Vec4);
+  return handle;
+}
+
 } // namespace
 
 Model::Model(std::shared_ptr<Mesh> mesh)
@@ -81,7 +87,12 @@ void Model::draw(bgfx::ViewId view) const {
   bgfx::setTransform(mtx);
   this->m_mesh->bind();
   bgfx::setTexture(0, textureSampler(), this->m_material->texture().handle());
-  bgfx::setState(BGFX_STATE_DEFAULT);
+
+  float opacity[4] = {this->m_material->opacity(), 0.0f, 0.0f, 0.0f};
+  bgfx::setUniform(opacityUniform(), opacity);
+
+  bgfx::setState(BGFX_STATE_DEFAULT |
+                 static_cast<uint64_t>(this->m_material->blendMode()));
   LightUniforms::applyActive(view);
   bgfx::submit(view, this->m_program);
 }
